@@ -1,0 +1,120 @@
+int motorA1  = 2;  // Pin  2 of L293
+int motorA2  = 3;  // Pin  7 of L293
+int motorB1  = 4; // Pin 10 of L293
+int motorB2  = 5;  // Pin 14 of L293
+int trigPin = 6;
+int echoPin = 7;
+int buz = 8;
+int led = 9;
+int sound = 250;
+int state = 1;
+
+void setup() {
+  // put your setup code here, to run once:
+    pinMode(motorA1, OUTPUT);
+    pinMode(motorA2, OUTPUT);
+    pinMode(motorB1, OUTPUT);
+    pinMode(motorB2, OUTPUT);  
+    pinMode(buz, OUTPUT);
+    pinMode(trigPin, OUTPUT);
+    pinMode(led, OUTPUT);
+    pinMode(echoPin, INPUT);
+
+Serial.begin(9600);
+}
+
+void loop() {
+  // main code here, to run repeatedly:
+  long duration, cm;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+ 
+  cm = microsecondsToCentimeters(duration);
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+  
+  if (cm > 50)
+  {
+    noTone(buz);
+    digitalWrite(led, LOW);
+  
+  }
+  else if (45 < cm < 50)
+  {
+    sound = 250;
+    tone(buz,sound,500);
+    digitalWrite(led, HIGH);
+  
+  }
+  else if (40 < cm < 45)
+  {
+    sound = 260;
+    tone(buz,sound,500);
+    digitalWrite(led, HIGH);
+  }
+  else if (35 < cm < 40)
+  {
+    sound = 270;
+    tone(buz,sound,500);
+    digitalWrite(led, HIGH);
+  }
+  else if (cm < 30)
+  {
+    sound = 500;
+    tone(buz,sound,500);
+    digitalWrite(led, HIGH);
+  }
+
+ 
+ 
+ if(Serial.available() > 0){     
+      state =Serial.read();
+ }
+Serial.println(state);
+  Serial.println();
+
+  //forward
+
+  if (state == 1) {
+   Serial.println("forward");
+      digitalWrite(motorA1, HIGH);  digitalWrite(motorA2, LOW);
+      digitalWrite(motorB1, HIGH);  digitalWrite(motorB2, LOW); 
+    }
+    //Forward Left
+  else if (state == 2) {
+       Serial.println("backward");
+        digitalWrite(motorA1, LOW);  digitalWrite(motorA2, LOW);  
+        digitalWrite(motorB1, HIGH); digitalWrite(motorB2, LOW); 
+    }
+  
+  // Forward Right 
+  else if (state == 3) {
+        digitalWrite(motorA1, HIGH); digitalWrite(motorA2, LOW); 
+        digitalWrite(motorB1, LOW);    digitalWrite(motorB2, LOW); 
+    }
+  
+  //  Backward  
+    else if (state == 4) {
+      digitalWrite(motorA1, LOW);   digitalWrite(motorA2, HIGH); 
+        digitalWrite(motorB1, LOW);   digitalWrite(motorB2, HIGH); 
+    }
+
+   // stop d boat 
+    else if (state == 5){
+        digitalWrite(motorA1, LOW);  digitalWrite(motorA2, LOW); 
+        digitalWrite(motorB1, LOW);  digitalWrite(motorB2, LOW);
+    }
+
+delay(500);
+}
+
+long microsecondsToCentimeters(long microseconds)
+{
+  return microseconds / 29 / 2;
+}
